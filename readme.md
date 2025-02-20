@@ -17,7 +17,7 @@ combining **anchor** and **lifted anchor** files from **MCScan outputs**, and gr
 
 ---
 
-## **1. Extract Target Chromosomes**
+## **1. Extract Target Chromosomes** (Not needed, if you want to analyze both anchor and lifted-anchor file(s) together.)
 This script extracts chromosome information from a **GFF3 file** for target genes listed in an **MCScanX/JCVI anchors file**.
 
 ### **Features**
@@ -29,11 +29,11 @@ This script extracts chromosome information from a **GFF3 file** for target gene
 ✅ Saves results as a **TSV file**  
 
 ### **Usage**
-Run interactively:
+Run interactively: 
 ```bash
 python extract_target_chromosomes.py
 ```
-OR specify files using arguments:
+OR specify files using arguments: (_**THIS MODE WILL NOT WORK. PLEASE USE THE INTERACTIVE MODE.**_ ).
 ```bash
 python extract_target_chromosomes.py -a anchors.txt -g genome.gff3
 ```
