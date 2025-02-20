@@ -78,7 +78,7 @@ LOC107275248	OMIW190G014393	B2	452	OMIW190G019179	C2	226L
 ---
 
 ## **3. Group Anchors by Query Gene**
-This script **groups anchor data by `Query_Gene`**, aggregating **target genes and chromosomes** into lists of tuples.
+This script **groups anchor data by `Query_Gene`**, aggregating **target genes and chromosomes** into lists of tuples. The input file here is the output of the **step 2 (the combined anchor-lifted anchor output from combine_anchors.py)**.
 
 ### **Features**
 ✅ Groups **all entries by `Query_Gene`**  
