@@ -1,71 +1,44 @@
-# Extract Target Chromosomes
+# Extract Target Chromosomes and Process Anchors
 
 ## Overview
-This script extracts chromosome information from a GFF3 file for target genes listed in an MCScanX anchors file.  
-It outputs a TSV file that includes:
-- Query gene
-- Target gene
-- Chromosome number of the target gene
-- Alignment score from the anchors file
+This repository contains scripts for extracting chromosome information from a GFF3 file for target genes,  
+combining **anchor** and **lifted anchor** files from **MCScan outputs**, and grouping data for further analysis.
 
-## Features
-- Skips comments in the anchors file (`#`-prefixed lines)
-- Parses the GFF3 file to map genes to chromosomes
-- **User-defined gene identifier** (supports both `gene_id=` and `ID=`)
-- **Optional stripping of "gene:"** prefixes in gene names
-- Optionally filters results based on a user-provided list of query genes
-- Saves results as a TSV file
+✅ The **anchor** and **lifted anchor** files should come from **MCScan** output.  
+✅ These scripts have been tested with **MCScan for Python (jcvi)**.  
+✅ They **should** work with **MCScanX** outputs as well, but this has not been tested.
 
-## Requirements
-- Python 3.x
-- pandas
+---
 
-Install dependencies with:
-```bash
-pip install pandas
-```
+## **Scripts Included**
+1. **`extract_target_chromosomes.py`** → Extracts chromosome information from a GFF3 file.
+2. **`combine_anchors.py`** → Merges **anchor** and **lifted anchor** files, linking `Query_Gene` to both.
+3. **`group_anchors.py`** → Groups data by `Query_Gene`, removing `"NA"` values and producing lists of tuples.
 
-## Usage
-Run the script and provide file paths when prompted:
+---
+
+## **1. Extract Target Chromosomes**
+This script extracts chromosome information from a **GFF3 file** for target genes listed in an **MCScanX/JCVI anchors file**.
+
+### **Features**
+✅ Skips comments in the anchors file (`#`-prefixed lines)  
+✅ Parses the GFF3 file to map genes to chromosomes  
+✅ Supports **user-defined gene identifiers** (`gene_id=` or `ID=`)  
+✅ Optionally **removes** `"gene:"` prefixes from gene names  
+✅ Can **filter results** based on a user-provided list of query genes  
+✅ Saves results as a **TSV file**  
+
+### **Usage**
+Run interactively:
 ```bash
 python extract_target_chromosomes.py
 ```
+OR specify files using arguments:
+```bash
+python extract_target_chromosomes.py -a anchors.txt -g genome.gff3
+```
 
-### **User Inputs**
-When running the script, you will be prompted to:
-1. **Enter the Anchors File** (e.g., `anchors.txt`)
-2. **Enter the GFF3 File** (e.g., `target_genome.gff3`)
-3. **(Optional) Enter the Query Gene List** (or press Enter to include all query genes)
-4. **Choose the Gene Identifier Key** (`gene_id` or `ID`, default: `gene_id`)
-5. **Enable or Disable "gene:" Stripping** (`yes` to remove it, `no` to keep it)
-
----
-
-### **Input Files**
-#### **1. Anchors File (e.g., `anchors.txt`)**
-- Format: `query_gene target_gene score`
-- Example:
-  ```
-  qA tA1 150
-  qA tA2 120
-  qB tB1 200
-  ```
-
-#### **2. GFF3 File (e.g., `target_genome.gff3`)**
-- Contains genomic feature annotations, including genes and their chromosome locations.
-- Example:
-  ```
-  1    oge    gene    1816    9281    .    +    .    ID=gene:OPUNC01G00010;gene_id=OPUNC01G00010;biotype=protein_coding
-  ```
-
-#### **3. (Optional) Query Gene List (e.g., `query_genes.txt`)**
-- A text file with one gene per line.
-- If not provided, all query genes will be included.
-
----
-
-### **Output**
-A TSV file named `{anchors_base}_{gff3_base}_output.tsv` will be created, containing:
+#### **Output Format**
 ```
 Query_Gene    Target_Gene    Chromosome    Score
 qA            tA1           C5            150
@@ -73,37 +46,96 @@ qA            tA2           B5            120
 qB            tB1           A1            200
 ```
 
-### **How Unknown Chromosomes Are Handled**
-- If a **target gene** is missing in the GFF3 file, `"Unknown"` is recorded in the Chromosome column.
-- If **gene ID formats differ** (e.g., `gene:OPUNC01G00010` vs. `OPUNC01G00010`), use the `"strip gene:"` option.
+---
+
+## **2. Combine Anchor and Lifted Anchor Files**
+This script **merges** **MCScan (JCVI or MCScanX)** **anchor and lifted anchor files**, linking `Query_Gene` to both.
+
+### **Features**
+✅ Reads **both anchor and lifted anchor files**  
+✅ Looks up **chromosome mappings** from a GFF3 file  
+✅ Outputs a TSV file combining information from both sources  
+✅ Supports **command-line arguments and interactive input**  
+
+### **Usage**
+```bash
+python combine_anchors.py -a anchor.txt -l lifted_anchor.txt -g genome.gff3
+```
+OR run interactively:
+```bash
+python combine_anchors.py
+```
+
+### **Output Format**
+```
+Query_Gene	Target_Gene-Anchor	Chromosome-Anchor	Score-Anchor	Target_Gene-LiftedAnchor	Chromosome-LiftedAnchor	Score-LiftedAnchor
+LOC107275246	OMIW190G07916	C1	506	OMIW190G02023	B1	144L
+LOC107275246	NA	NA	NA	OMIW190G02022	B1	109L
+LOC107275248	OMIW190G014393	B2	452	OMIW190G019179	C2	226L
+```
+🔹 **NA values are preserved** if no corresponding match exists.
 
 ---
 
-## **Example Run**
+## **3. Group Anchors by Query Gene**
+This script **groups anchor data by `Query_Gene`**, aggregating **target genes and chromosomes** into lists of tuples.
+
+### **Features**
+✅ Groups **all entries by `Query_Gene`**  
+✅ Aggregates **target genes & chromosomes** into **lists of tuples**  
+✅ **Removes `"NA"` values**  
+✅ **Filters by a subset of query genes** if specified  
+✅ **Automatically names output files** unless a custom name is given  
+
+### **Usage**
+#### **1. Process All Genes (Auto-Named Output)**
+```bash
+python group_anchors.py -i combined_output.tsv
 ```
-Enter the anchors file path: anchors.txt
-Enter the GFF3 file path: target_genome.gff3
-Enter the query gene list file (or press Enter to use all genes): (press Enter)
-Enter the gene identifier key (gene_id or ID, default: gene_id): ID
-Do you want to strip 'gene:' prefixes? (yes/no, default: no): yes
+✅ Saves to:  
 ```
-**Example Output File (`anchors_target_genome_output.tsv`)**
+grouped_combined_output.tsv
 ```
-Query_Gene    Target_Gene    Chromosome    Score
-LOC4326813    OPUNC01G00010    1            3100
-LOC4326455    OPUNC01G00020    1            2650
-LOC112163591  OPUNC01G00030    Unknown      2360
+
+#### **2. Process a Subset of Genes**
+```bash
+python group_anchors.py -i combined_output.tsv -q query_genes.txt
+```
+✅ Saves to:  
+```
+grouped_filtered_combined_output.tsv
+```
+
+#### **3. Specify a Custom Output File**
+```bash
+python group_anchors.py -i combined_output.tsv -o my_output.tsv -q query_genes.txt
+```
+✅ Saves to `my_output.tsv`.
+
+### **Output Format**
+```
+Query_Gene	Target_Gene-Anchor	Target_Gene-LiftedAnchor
+LOC107275246	[('OMIW190G07916', 'C1')]	[('OMIW190G02023', 'B1'), ('OMIW190G02022', 'B1'), ('OMIW190G07916', 'C1')]
+LOC107275248	[('OMIW190G014393', 'B2')]	[('OMIW190G014393', 'B2'), ('OMIW190G019179', 'C2')]
+```
+
+---
+
+## **Installation**
+Requires **Python 3.x** and `pandas`. Install dependencies with:
+```bash
+pip install pandas
 ```
 
 ---
 
 ## **Notes**
-- If a **query gene** is missing from the provided list, it will be skipped.
-- If a **target gene has no chromosome mapping**, `"Unknown"` will be recorded.
-- The script **automatically adapts** to different GFF3 formats by allowing user choices.
+🔹 **Anchor and lifted anchor files should come from MCScan (JCVI or MCScanX).**  
+🔹 If a **query gene** is missing from the provided list, it will be skipped.  
+🔹 **"NA" values are automatically removed** when grouping anchor data.  
+🔹 The script **automatically adapts** to different input formats.  
 
 ---
 
 ## **License**
 MIT License.
-
