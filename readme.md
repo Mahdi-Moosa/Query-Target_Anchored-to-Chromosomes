@@ -33,9 +33,13 @@ Run interactively:
 ```bash
 python extract_target_chromosomes.py
 ```
-OR specify files using arguments: (_**THIS MODE WILL NOT WORK. PLEASE USE THE INTERACTIVE MODE.**_ ).
+OR specify files using arguments:
 ```bash
 python extract_target_chromosomes.py -a anchors.txt -g genome.gff3
+```
+OR if you want to specify optional flags too:
+```bash
+python extract_target_chromosomes.py -a anchors.txt -g genes.gff3 -q queries.txt -k ID -s 'gene:'
 ```
 
 #### **Output Format**
