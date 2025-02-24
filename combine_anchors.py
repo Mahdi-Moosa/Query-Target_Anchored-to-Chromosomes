@@ -40,7 +40,12 @@ def process_anchors(anchors_file, gene_to_chr):
                 continue
             
             query_gene, target_gene, score = fields[:3]
+            #print(f'Target gene before processing is: {target_gene}')
+            target_gene = target_gene.split('.')[0]  # Get only base accession, w/o version.
+            #print(f'Target gene AFTER processing is: {target_gene}')
+            #print(gene_to_chr)
             chromosome = gene_to_chr.get(target_gene, "Unknown")
+            #print(f'For the {target_gene} the chromosome number is {chromosome}')
 
             if query_gene not in results:
                 results[query_gene] = []
